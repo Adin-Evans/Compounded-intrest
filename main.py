@@ -1,13 +1,83 @@
 import math as m
+from copy import *
+
 A = None
 P = None
 r = None
 t = None
 n = None
+
+#rounds perameter to nearest hundreth
+def round(x):
+    return int(x) + (int(((x + .005)-int(x))*100)/100)
+
+#solves for A
+def solveA(P,r,t,n):
+    if n == 'e':
+        A = P * m.exp(r * t)
+    else:
+        A = P * ((1+r/n)) ** (t*n)
+    return A
+
+#solves for A
+def solveP(A,r,t,n):
+    if n == 'e':
+        P = A / (m.exp(r * t))
+    else:
+        P = A / ((1 + (r/n)) ** (t * n))
+    return P
+
+#solves for r
+def solveR(A,P,t,n):
+    if n == "e":
+        r = (m.log(A/p)) / t
+    else:
+        r = (((A/P) ** (1/(n*t))) - 1) * n
+    return r
+
+#solves for t
+def solveT(A,P,r,n):
+    if n == 'e':
+        t = (m.log(A/P))/r
+    else:
+        t = (m.log(A/P,(1+r/n))) / n
+    return t
+
+def offerCompare(P,t,O):
+    rates = []
+    compounds = []
+    finalValues = []
+    for i in range(O):
+        while True:
+            x = input(f'What is offer {i+1}\'s APR? ')
+            if x.upper() == x:
+                x = float(x)
+                x /= 100
+                rates.append(x)
+                break
+            else:
+                print("Invalid Input")
+    for i in range(O):
+        while True:
+            x = input(f'how often does offer {i+1} compound a year? ')
+            if x.upper() == x:
+                compounds.append(float(x))
+                break
+            else:
+                print("Invalid Input")
+    for i in range(O):
+        temp = solveA(P, rates[i], t, compounds[i])
+        finalValues.append(temp)
+
+    originalFinalValues = copy(finalValues)
+    finalValues.sort(reverse = True)
+    print(f'offer {(originalFinalValues.index(finalValues[0])+1)} offers the best deal at ${round(finalValues[0])}\nIt makes you {round(finalValues[0] - finalValues[1])} more dollars then the next best deal and {round(finalValues[0] - finalValues[len(finalValues)-1])} more than the worst offer')
+
+
 # m.exp(-power-) is e to the power
 
 #m.log(a,Base) a in the numeric value/ "to the" and Base is the base of the log
-# (if 1 perameter is passed it uses natural log(e))
+# (if 1 perameter is passed it uses natural log v e())
 
 # Asks what user is trying to find
 while True:
@@ -15,7 +85,7 @@ while True:
     print("1.) I need to know how much to invest to get to a certain amount in a set time")
     print("2.) I need to know how much money I will have in a certain amount of time with a set investment")
     print("3.) I need to know how long I need to invest a certain amount of money to reach a set goal")
-    print("4.) I need to find out the best deal between two investments based on percentage and compounding")
+    print("4.) I need to find out the best deal between x amount of deals investments based on percentage and compounding")
     print("5.) I need to know what APR I need to reach a certain goal with a set investment and time")
     x = input("")
     if x == "1" or x == "2" or x == "3" or x == "4" or x == "5":
@@ -43,7 +113,7 @@ if x != '4':
                 print("Invalid Invalid")
     if x != '3':
         while True:
-            t = input("How long are going to invest the money?")
+            t = input("How many years are going to invest the money?")
             if t.upper() == t:
                 t = float(t)
                 break
@@ -128,16 +198,34 @@ if x == '4':
         else:
             print("Invalid Input")
     while True:
-        t = print("How many years will you be investing?")
-        if t.upper() == P:
+        t = input("How many years will you be investing?")
+        if t.upper() == t:
             t = float(t)
             break
         else:
             print("Invalid Input")
 
+print()
 
-print(A)
-print(P)
-print(r)
-print(t)
-print(n)
+#solves respective problem for 1,3 and 5 and prints final message
+if x != '4':
+    if A == None:
+        A = solveA(P, r, t, n)
+        A = round(A)
+        print(f"${A:,}")
+    elif P == None:
+        P = solveP(A, r, t, n)
+        P = round(P)
+        print(f'${P:,}')
+    elif r == None:
+        r = solveR(A, P, t, n)
+        r = round(r)
+        print(f'{r * 100}%')
+    elif t == None:
+        t = solveT(A, P, r, n)
+        t = round(t)
+        print(f'{t} years')
+
+#solves 4 and displays final message
+if x == '4':
+    offerCompare(P, t, offers)
